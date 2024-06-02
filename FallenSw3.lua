@@ -1,3 +1,17 @@
+if getgenv().keysystem == true then
+    local KeySystemUI = loadstring(game:HttpGet(
+        "https://raw.githubusercontent.com/MaGiXxScripter0/keysystemv2api/master/ui/xrer_mstudio45.lua"))()
+    KeySystemUI.New({
+        ApplicationName = "FallAngelHub",                -- Your Key System Application Name
+        Name = "FallAngelHub",                           -- Your Script name
+        Info = "Get Key For FallAngelHub",               -- Info text in the GUI, keep empty for default text.
+        DiscordInvite = "https://discord.gg/auzBFqDrwZ", -- Optional.
+        AuthType =
+        "clientid"                                       -- Can select verifycation with ClientId or IP ("clientid" or "ip")
+    })
+    repeat task.wait() until KeySystemUI.Finished() or KeySystemUI.Closed
+end
+
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet(
     "https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
@@ -6,7 +20,7 @@ local InterfaceManager = loadstring(game:HttpGet(
 
 local Window = Fluent:CreateWindow({
     Title = "Swordburst 3",
-    SubTitle = "",
+    SubTitle = "by fallen_del",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = false,                       -- The blur may be detectable, setting this to false disables blur entirely
@@ -15,7 +29,15 @@ local Window = Fluent:CreateWindow({
 })
 
 local Tabs = {
+    mainTab = Window:AddTab({ Title = "Main", Icon = "scroll" }),
+    killauraTab = Window:AddTab({ Title = "Kill Aura", Icon = "swords" }),
+    miscTab = Window:AddTab({ Title = "Misc", Icon = "layout-grid" }),
     targetTab = Window:AddTab({ Title = "Target", Icon = "target" }),
+    teleportTab = Window:AddTab({ Title = "Teleport", Icon = "user-cog" }),
+    upgradeTab = Window:AddTab({ Title = "Upgrade", Icon = "hammer" }),
+    webhookTab = Window:AddTab({ Title = "Webhook", Icon = "bell" }),
+    creditTab = Window:AddTab({ Title = "Information", Icon = "users" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
 local Options = Fluent.Options
@@ -220,14 +242,14 @@ for i, v in next, getconnections(lplr.Idled) do
     end
 end
 
-Tabs.targetTab:AddDropdown("method", {
+Tabs.mainTab:AddDropdown("method", {
     Title = "Select Method To Teleport",
     Values = methods,
     Multi = false,
     Default = swordburst["method"].Value,
 })
 
-Tabs.targetTab:AddSlider("dist", {
+Tabs.mainTab:AddSlider("dist", {
     Title = "Select Distance",
     Description = "",
     Default = swordburst["dist"].Value,
@@ -235,6 +257,334 @@ Tabs.targetTab:AddSlider("dist", {
     Max = 40,
     Rounding = 1,
 })
+
+Tabs.mainTab:AddDropdown("choosemob", {
+    Title = "Select Mobs",
+    Values = mobs,
+    Multi = false,
+    Default = swordburst["choosemob"].Value,
+})
+
+Tabs.mainTab:AddToggle("automobs", { Title = "Auto Farm Mobs", Default = swordburst["automobs"].Value })
+
+
+Tabs.mainTab:AddDropdown("boss", {
+    Title = "Select Boss",
+    Values = bosses,
+    Multi = false,
+    Default = swordburst["boss"].Value,
+})
+
+Tabs.mainTab:AddParagraph({
+    Title = "Auto Farm Boss",
+    Content = "When boss havent spawn will farm selected mob"
+})
+
+Tabs.mainTab:AddToggle("autoboss", { Title = "Auto farm Boss", Default = swordburst["autoboss"].Value })
+
+Tabs.mainTab:AddDropdown("choosequest", {
+    Title = "Select Quest",
+    Values = quests,
+    Multi = false,
+    Default = swordburst["choosequest"].Value,
+})
+
+Tabs.mainTab:AddToggle("autoquest", { Title = "Auto Quest", Default = swordburst["autoquest"].Value })
+
+Tabs.mainTab:AddSlider("cds", {
+    Title = "Mine Ores Cooldown",
+    Description = "",
+    Default = swordburst["cds"].Value,
+    Min = 0.3,
+    Max = 1,
+    Rounding = 1,
+})
+
+Tabs.mainTab:AddDropdown("mine", {
+    Title = "Select Ores",
+    Values = mines,
+    Multi = false,
+    Default = swordburst["mine"].Value,
+})
+
+Tabs.mainTab:AddToggle("automine", { Title = "Auto Mine Ores", Default = swordburst["automine"].Value })
+
+Tabs.mainTab:AddToggle("autocollect", { Title = "Auto Collect", Default = swordburst["autocollect"].Value })
+
+Tabs.killauraTab:AddParagraph({
+    Title = "Kill Aura Cooldown",
+    Content = "Higher up cooldown if does no damage"
+})
+Tabs.killauraTab:AddSlider("cd", {
+    Title = "Kill Aura Cooldown",
+    Description = "",
+    Default = swordburst["cd"].Value,
+    Min = 0.25,
+    Max = 1,
+    Rounding = 1,
+})
+
+Tabs.killauraTab:AddSlider("range", {
+    Title = "Kill Aura Range",
+    Description = "",
+    Default = swordburst["range"].Value,
+    Min = 1,
+    Max = 10000,
+    Rounding = 1,
+})
+
+Tabs.killauraTab:AddToggle("aura", { Title = "Kill Aura", Default = swordburst["aura"].Value })
+
+Tabs.killauraTab:AddParagraph({
+    Title = "Kill aura for Players",
+    Content = "Enable PvP to dmg ppl"
+})
+Tabs.killauraTab:AddToggle("killauraplr", { Title = "Kill Aura for Players", Default = swordburst["killauraplr"].Value })
+
+Tabs.killauraTab:AddToggle("ignoreparty", { Title = "Ignore Party Members", Default = swordburst["ignoreparty"].Value })
+
+local waystonedropdown = Tabs.teleportTab:AddDropdown("", {
+    Title = "Select Waystones",
+    Values = waystone,
+    Multi = false,
+    Default = nil,
+})
+waystonedropdown:OnChanged(function(Value)
+    waystones = Value
+end)
+
+Tabs.teleportTab:AddButton({
+    Title = "Teleport Waystones",
+    Description = "",
+    Callback = function()
+        if waystones and getchar() and getchar():FindFirstChild("HumanoidRootPart") then
+            for i, v in next, workspace.Waystones:GetChildren() do
+                if v.Name == waystones then
+                    getchar().HumanoidRootPart.CFrame = v.Main.CFrame * CFrame.new(0, 0, 5)
+                end
+            end
+        end
+    end
+})
+
+local floordropdown = Tabs.teleportTab:AddDropdown("", {
+    Title = "Select Floor",
+    Values = floors,
+    Multi = false,
+    Default = nil,
+})
+floordropdown:OnChanged(function(Value)
+    floor = Value
+end)
+
+Tabs.teleportTab:AddButton({
+    Title = "Teleport to Selected Floor",
+    Description = "",
+    Callback = function()
+        if floor then
+            ReplicatedStorage.Systems.Teleport.Teleport:FireServer(floor)
+        end
+    end
+})
+
+local reduceToggle = Tabs.miscTab:AddToggle("reducelag", { Title = "Reduce Lag", Default = false })
+reduceToggle:OnChanged(function()
+    if Options["reducelag"].Value == true then
+        if workspace:FindFirstChild("Effects") then
+            workspace:FindFirstChild("Effects"):Destroy()
+        end
+    else
+        if not workspace:FindFirstChild("Effects") then
+            local folder = Instance.new("Folder")
+            folder.Name = "Effects"
+            folder.Parent = workspace
+        end
+    end
+end)
+
+Tabs.miscTab:AddToggle("noclip", { Title = "Noclip", Default = false })
+
+Tabs.miscTab:AddButton({
+    Title = "Infinite Stamina",
+    Description = "",
+    Callback = function()
+        debug.setupvalue(Stamina.SetMaxStamina, 1, 99999999)
+        debug.setupvalue(Stamina.CanUseStamina, 1, 99999999)
+    end
+})
+
+Tabs.miscTab:AddButton({
+    Title = "Claim All Chest",
+    Description = "",
+    Callback = function()
+        for i, v in next, workspace:GetChildren() do
+            if v.Name == "Chest" and v:FindFirstChild("RootPart") and v:FindFirstChild("RootPart"):FindFirstChild("ProximityPrompt") and getchar() and getchar():FindFirstChild("HumanoidRootPart") then
+                getchar():FindFirstChild("HumanoidRootPart").CFrame = v:FindFirstChild("RootPart").CFrame *
+                    CFrame.new(0, 2, 0)
+                repeat
+                    task.wait(.1)
+                    VirtualInputManager:SendKeyEvent(true, "E", false, game)
+                until v:FindFirstChild("RootPart"):FindFirstChild("ProximityPrompt") == nil
+            end
+        end
+    end
+})
+
+Tabs.miscTab:AddButton({
+    Title = "Server Hop",
+    Description = "",
+    Callback = function()
+        local PlaceID = game.PlaceId
+        local AllIDs = {}
+        local foundAnything = ""
+        local actualHour = os.date("!*t").hour
+        local Deleted = false
+        local File = pcall(function()
+            AllIDs = game:GetService('HttpService'):JSONDecode(readfile("NotSameServers.json"))
+        end)
+        if not File then
+            table.insert(AllIDs, actualHour)
+            writefile("NotSameServers.json", game:GetService('HttpService'):JSONEncode(AllIDs))
+        end
+        local function TPReturner()
+            local Site;
+            if foundAnything == "" then
+                Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' ..
+                    PlaceID .. '/servers/Public?sortOrder=Asc&limit=100'))
+            else
+                Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' ..
+                    PlaceID .. '/servers/Public?sortOrder=Asc&limit=100&cursor=' .. foundAnything))
+            end
+            local ID = ""
+            if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
+                foundAnything = Site.nextPageCursor
+            end
+            local num = 0;
+            for i, v in pairs(Site.data) do
+                local Possible = true
+                ID = tostring(v.id)
+                if tonumber(v.maxPlayers) > tonumber(v.playing) then
+                    for _, Existing in pairs(AllIDs) do
+                        if num ~= 0 then
+                            if ID == tostring(Existing) then
+                                Possible = false
+                            end
+                        else
+                            if tonumber(actualHour) ~= tonumber(Existing) then
+                                local delFile = pcall(function()
+                                    delfile("NotSameServers.json")
+                                    AllIDs = {}
+                                    table.insert(AllIDs, actualHour)
+                                end)
+                            end
+                        end
+                        num = num + 1
+                    end
+                    if Possible == true then
+                        table.insert(AllIDs, ID)
+                        wait()
+                        pcall(function()
+                            writefile("NotSameServers.json", game:GetService('HttpService'):JSONEncode(AllIDs))
+                            wait()
+                            game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID,
+                                game.Players.LocalPlayer)
+                        end)
+                    end
+                end
+            end
+        end
+        local function Teleport()
+            while wait() do
+                pcall(function()
+                    TPReturner()
+                    if foundAnything ~= "" then
+                        TPReturner()
+                    end
+                end)
+            end
+        end
+        Teleport()
+    end
+})
+
+Tabs.miscTab:AddDropdown("rarity", {
+    Title = "Select Rarity",
+    Values = raritys,
+    Multi = false,
+    Default = swordburst["rarity"].Value,
+})
+
+Tabs.miscTab:AddButton({
+    Title = "Dismantle Selected rarity",
+    Description = "",
+    Callback = function()
+        if Options["rarity"].Value then
+            local e = string.split(Options["rarity"].Value, " ")[1] ..
+                " " .. string.split(Options["rarity"].Value, " ")[2]
+            for i, v in next, ItemList do
+                if v.Rarity and v.Rarity <= realrarity[e] and not table.find(category, v.Category) then
+                    for _, items in next, ReplicatedStorage.Profiles[lplr.Name].Inventory:GetChildren() do
+                        if string.find(i, items.Name) then
+                            ReplicatedStorage:WaitForChild("Systems"):WaitForChild("Crafting"):WaitForChild("Dismantle")
+                                :FireServer(items)
+                            task.wait(.5)
+                        end
+                    end
+                end
+            end
+        end
+    end
+})
+
+Tabs.miscTab:AddToggle("autorejoin",
+    { Title = "Auto Rejoin When Disconnected", Default = swordburst["autorejoin"].Value })
+
+Tabs.creditTab:AddParagraph({
+    Title = "Scripts Made by fallen_del",
+    Content = ""
+})
+Tabs.creditTab:AddParagraph({
+    Title = "UI Library by dawid",
+    Content = ""
+})
+Tabs.creditTab:AddButton({
+    Title = "Discord Server",
+    Description = "",
+    Callback = function()
+        setclipboard("https://discord.gg/auzBFqDrwZ")
+    end
+})
+
+Tabs.webhookTab:AddInput("Input", {
+    Title = "Webhook Url",
+    Default = "",
+    Placeholder = "Ur webhook url",
+    Numeric = false,
+    Finished = false,
+    Callback = function(Value)
+        webhookurl = Value
+    end
+})
+
+Tabs.webhookTab:AddButton({
+    Title = "Test Webhook",
+    Description = "",
+    Callback = function()
+        if webhookurl then
+            webhook(webhookurl)
+        end
+    end
+})
+
+Tabs.webhookTab:AddDropdown("rarityw", {
+    Title = "Select Rarity for webhook",
+    Values = rarityw,
+    Multi = false,
+    Default = swordburst["rarityw"].Value,
+})
+
+Tabs.webhookTab:AddToggle("webhook", { Title = "Webhook", Default = swordburst["webhook"].Value })
+
 Tabs.targetTab:AddDropdown("choosetarget", {
     Title = "Select Target",
     Values = getallplr(),
@@ -245,6 +595,57 @@ Tabs.targetTab:AddDropdown("choosetarget", {
 Tabs.targetTab:AddToggle("targetplr", { Title = "Tp to Selected Players", Default = swordburst["targetplr"].Value })
 
 Tabs.targetTab:AddToggle("killtarget", { Title = "Kill Only Selected Player", Default = swordburst["killtarget"].Value })
+
+Tabs.upgradeTab:AddButton({
+    Title = "Open Upgrade Gui",
+    Description = "",
+    Callback = function()
+        if lplr.PlayerGui.Upgrade.Frame.List:FindFirstChild("ItemTemplate") then
+            lplr.PlayerGui.Upgrade.Enabled = true
+            lplr.PlayerGui.Upgrade.Frame.Visible = true
+        else
+            repeat
+                task.wait()
+                getchar().HumanoidRootPart.CFrame = workspace.CraftingStations.Smithing.CFrame
+                VirtualInputManager:SendKeyEvent(true, "E", false, game)
+            until lplr.PlayerGui.Upgrade.Frame.List:FindFirstChild("ItemTemplate")
+        end
+    end
+})
+
+Tabs.upgradeTab:AddButton({
+    Title = "Open Mount Gui",
+    Description = "",
+    Callback = function()
+        if lplr.PlayerGui.Mounts.Frame.Mounts.MountList.Items:FindFirstChild("ItemTemplate") then
+            lplr.PlayerGui.Mounts.Enabled = true
+            lplr.PlayerGui.Mounts.Frame.Visible = true
+        else
+            repeat
+                task.wait()
+                getchar().HumanoidRootPart.CFrame = workspace.CraftingStations.Mounts.CFrame
+                VirtualInputManager:SendKeyEvent(true, "E", false, game)
+            until lplr.PlayerGui.Mounts.Frame.Mounts.MountList.Items:FindFirstChild("ItemTemplate")
+        end
+    end
+})
+
+Tabs.upgradeTab:AddButton({
+    Title = "Open Enchant Gui",
+    Description = "",
+    Callback = function()
+        if lplr.PlayerGui.Enchant.Frame.List:FindFirstChild("ItemTemplate") then
+            lplr.PlayerGui.Enchant.Enabled = true
+            lplr.PlayerGui.Enchant.Frame.Visible = true
+        else
+            repeat
+                task.wait()
+                getchar().HumanoidRootPart.CFrame = workspace.CraftingStations.Enchanting.CFrame
+                VirtualInputManager:SendKeyEvent(true, "E", false, game)
+            until lplr.PlayerGui.Enchant.Frame.List:FindFirstChild("ItemTemplate")
+        end
+    end
+})
 
 local function methodss()
     if Options["dist"].Value then
